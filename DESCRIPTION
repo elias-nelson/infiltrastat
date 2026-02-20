@@ -19,3 +19,5 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 url: https://github.com/elias-nelson/infiltrastat
 BugReports: https://github.com/elias-nelson/infiltrastat/issues
+Imports: 
+    minpack.lm
