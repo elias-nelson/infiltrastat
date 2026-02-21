@@ -1,9 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-<img src="man/figures/logo.png" align="right" height="140" />
-
-# `infiltrastat` — Tools for Fitting and Evaluating Soil Infiltration Models
+# `infiltrastat` — Tools for Fitting and Evaluating Soil Infiltration Models <img src="man/figures/logo.png" align="right" height="160" />
 
 <!-- badges: start -->
 
@@ -13,8 +11,8 @@ The goal of infiltrastat is to …
 
 ## Installation
 
-You can install the development version of infiltrastat from
-[GitHub](https://github.com/) with:
+You can install the development version of `infiltrastat` from
+[GitHub](https://github.com/elias-nelson/infiltrastat) with:
 
 ``` r
 # install.packages("pak")
