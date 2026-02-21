@@ -1,7 +1,9 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# `infiltrastat` — Tools for Fitting and Evaluating Soil Infiltration Models <img src="man/figures/logo.png" align="right" height="160" />
+<img src="man/figures/logo.png" align="right" height="160" />
+
+# `infiltrastat` — Tools for Fitting and Evaluating Soil Infiltration Models
 
 <!-- badges: start -->
 
