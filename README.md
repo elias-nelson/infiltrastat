@@ -7,6 +7,11 @@
 
 <!-- badges: start -->
 
+[![R-CMD-check](https://github.com/elias-nelson/infiltrastat/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/elias-nelson/infiltrastat/actions/workflows/R-CMD-check.yaml)
+[![Lifecycle:
+experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html)
+[![License:
+MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 <!-- badges: end -->
 
 The goal of infiltrastat is to …
