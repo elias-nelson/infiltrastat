@@ -26,6 +26,13 @@ You can install the development version of `infiltrastat` from
 remotes::install_github("elias-nelson/infiltrastat")
 ```
 
+or with `devtools`
+
+``` r
+# install.packages("devtools")
+devtools::install_github("elias-nelson/infiltrastat")
+```
+
 If you have any problems installing, we recommend trying with
 [pak](https://pak.r-lib.org) since it is likely to help diagnose the
 problem:
