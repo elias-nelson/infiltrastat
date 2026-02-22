@@ -18,6 +18,9 @@ The goal of infiltrastat is to …
 
 ## Installation
 
+You need to have
+[rtools](https://cran.r-project.org/bin/windows/Rtools/) installed
+
 You can install the development version of `infiltrastat` from
 [GitHub](https://github.com/elias-nelson/infiltrastat) with:
 
