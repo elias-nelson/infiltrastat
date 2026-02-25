@@ -3,7 +3,7 @@
 
 <img src="man/figures/logo.png" align="right" height="160" />
 
-# `infiltrastat` — Tools for Fitting and Evaluating Soil Infiltration Models in <img src="https://www.r-project.org/logo/Rlogo.svg" alt="R" style="height:1em; vertical-align:-0.1em;">
+# `infiltrastat` — Statistical tools for fitting and evaluating soil water infiltration models in <img src="https://www.r-project.org/logo/Rlogo.svg" alt="R" style="height:1em; vertical-align:-0.1em;">
 
 <!-- badges: start -->
 
@@ -35,7 +35,6 @@ library(infiltrastat)
 ## basic example code
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`?
 You can include R chunks like so:
 
 ``` r
