@@ -1,3 +1,14 @@
+#' Title
+#'
+#' @param data
+#' @param time
+#' @param rate
+#' @param na.rm
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 fit_philip <- function(data, time, rate, na.rm = TRUE) {
 
   # ---------------------------
