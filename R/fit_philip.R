@@ -1,14 +1,64 @@
-#' Title
+#' Fit the Philip Infiltration Model
 #'
-#' @param data
-#' @param time
-#' @param rate
-#' @param na.rm
+#' Fits the two-parameter Philip infiltration model to observed infiltration
+#' rate data using nonlinear least squares (Levenberg–Marquardt algorithm).
+#' The model is fitted using \code{minpack.lm::nlsLM()}, and performance
+#' metrics including RMSE, MAE, NSE, R², PBIAS, NRMSE, and AIC are computed.
+#' The Philip model describes infiltration rate as a function of sorptivity
+#' and steady-state infiltration rate:
 #'
-#' @returns
+#' \deqn{f(t) = f_c + \frac{1}{2} S t^{-1/2}}
+#'
+#' where \eqn{f_c} is the steady-state infiltration rate and
+#' \eqn{S} is sorptivity.
+#'
+#' @param data A data frame containing infiltration observations.
+#' @param time Unquoted column name representing cumulative time
+#'   (must be numeric and strictly > 0).
+#' @param rate Unquoted column name representing infiltration rate
+#'   (numeric).
+#' @param na.rm Logical; if `TRUE` (default), incomplete cases are removed
+#'   before fitting.
+#'
+#' @returns A list with class \code{"philip_model"} containing:
+#' \itemize{
+#'   \item \code{model} — Model name.
+#'   \item \code{parameters} — Estimated parameters (\eqn{f_c}, \eqn{S}).
+#'   \item \code{fitted} — Data frame with observed, predicted, and residual values.
+#'   \item \code{performance} — Goodness-of-fit statistics.
+#'   \item \code{nls_obj} — The fitted \code{nlsLM} object.
+#' }
+#'
+#' @details
+#' Starting values are estimated internally:
+#' \itemize{
+#'   \item \eqn{f_c} is approximated from the tail of the observed series.
+#'   \item \eqn{S} is estimated via linear regression of
+#'   \eqn{f(t) - f_c} against \eqn{1/\sqrt{t}}.
+#' }
+#'
+#' Time values must be strictly positive because the model contains
+#' a \eqn{t^{-1/2}} term.
+#'
+#' @references
+#' Philip, J. R. (1957). The theory of infiltration: 1. The infiltration equation
+#' and its solution. *Soil Science*, 83(5), 345–358.
+#'
 #' @export
 #'
 #' @examples
+#' # Example using synthetic data
+#' set.seed(123)
+#' time <- seq(5, 60, by = 5)
+#' rate <- 5 + 0.5 * 12 * time^(-0.5) + rnorm(length(time), 0, 0.3)
+#'
+#' data <- data.frame(time = time, rate = rate)
+#'
+#' model <- fit_philip(data, time = time, rate = rate)
+#'
+#' model$parameters
+#' model$performance
+
 fit_philip <- function(data, time, rate, na.rm = TRUE) {
 
   # ---------------------------
@@ -123,7 +173,7 @@ fit_philip <- function(data, time, rate, na.rm = TRUE) {
       residual  = resid
     ),
 
-    perfomance = data.frame(
+    performance = data.frame(
       RMSE  = rmse,
       MAE   = mae,
       NRMSE = nrmse,
