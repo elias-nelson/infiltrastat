@@ -24,8 +24,9 @@ A list with class \code{"philip_model"} containing:
 \item \code{model} — Model name.
 \item \code{parameters} — Estimated parameters (\eqn{f_c}, \eqn{S}).
 \item \code{fitted} — Data frame with observed, predicted, and residual values.
-\item \code{performance} — Goodness-of-fit statistics.
-\item \code{nls_obj} — The fitted \code{nlsLM} object.
+\item \code{performance} — Data frame of goodness-of-fit
+statistics (RMSE, MAE, NRMSE, PBIAS, R², NSE, AIC).
+\item \code{nls_obj} — The fitted \code{nlsLM} model object.
 }
 }
 \description{
