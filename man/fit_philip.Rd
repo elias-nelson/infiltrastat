@@ -29,14 +29,15 @@ A list with class \code{"philip_model"} containing:
 }
 }
 \description{
-Fits the two-parameter Philip infiltration model to observed infiltration
-rate data using nonlinear least squares (Levenberg–Marquardt algorithm).
-The model is fitted using \code{minpack.lm::nlsLM()}, and performance
-metrics including RMSE, MAE, NSE, R², PBIAS, NRMSE, and AIC are computed.
-The Philip model describes infiltration rate as a function of sorptivity
-and steady-state infiltration rate:
+Fits the two-parameter Philip infiltration model to observed soil water
+infiltration experimental data using nonlinear least squares
+(Levenberg–Marquardt algorithm) via \code{minpack.lm::nlsLM()}. The
+function provides automatic starting values, parameter estimation, model
+diagnostics, and commonly used goodness-of-fit statistics.
 }
 \details{
+The Philip model describes infiltration rate as a function of sorptivity
+and steady-state infiltration rate:
 \deqn{f(t) = f_c + \frac{1}{2} S t^{-1/2}}
 
 where \eqn{f_c} is the steady-state infiltration rate and
@@ -51,6 +52,10 @@ Starting values are estimated internally:
 
 Time values must be strictly positive because the model contains
 a \eqn{t^{-1/2}} term.
+
+The function computes standard hydrological performance metrics
+including Nash–Sutcliffe Efficiency (NSE), Percent Bias (PBIAS),
+and Normalized Root Mean Square Error (NRMSE).
 }
 \examples{
 # Example using synthetic data
@@ -62,8 +67,8 @@ data <- data.frame(time = time, rate = rate)
 
 model <- fit_philip(data, time = time, rate = rate)
 
-model$parameters
-model$performance
+print(model$parameters)
+print(model$performance)
 }
 \references{
 Philip, J. R. (1957). The theory of infiltration: 1. The infiltration equation

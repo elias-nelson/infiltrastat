@@ -35,8 +35,8 @@ statistics (RMSE, MAE, NRMSE, PBIAS, R², NSE, AIC).
 }
 }
 \description{
-Fits the Horton (1940) exponential decay model to observed soil
-infiltration rate data using nonlinear least squares with bounded
+Fits the Horton (1940) exponential decay model to observed soil water
+infiltration experimental data using nonlinear least squares with bounded
 optimization via \code{minpack.lm::nlsLM}. The function provides
 automatic starting values, parameter estimation, model diagnostics,
 and commonly used goodness-of-fit statistics.
