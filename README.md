@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-<img src="man/figures/logo.png" align="right" height="160" />
+<img src="man/figures/logo.png" align="right" height="150" />
 
 # `infiltrastat` — Statistical tools for fitting and evaluating soil water infiltration models in <img src="https://www.r-project.org/logo/Rlogo.svg" alt="R" style="height:1em; vertical-align:-0.1em;">
 
