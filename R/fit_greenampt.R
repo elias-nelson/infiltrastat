@@ -60,10 +60,12 @@
 #'
 #' @export
 #'
+#' @importFrom stats uniroot
+#'
 #' @examples
 #' # Example using synthetic data
 #' set.seed(123)
-#' time <- seq(0, 60, by = 5)
+#' time <- seq(5, 60, by = 5)
 #'
 #' # Simulated infiltration curve
 #' rate <- 10 * (1 + 50 / (time + 10))
@@ -122,7 +124,7 @@ fit_greenampt <- function(data, time, rate, na.rm = TRUE) {
   GA_F <- function(t, K, Ns) {
     # Solve: F - K*t - Ns*log(1 + F/Ns) = 0
     f_root <- function(F) F - K * t - Ns * log(1 + F/Ns)
-    uniroot(f_root, interval = c(0, 1e6), tol = 1e-8)$root
+    stats::uniroot(f_root, interval = c(0, 1e6), tol = 1e-8)$root
   }
 
   GA_rate <- function(t, K, Ns) {

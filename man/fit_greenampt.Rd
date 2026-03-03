@@ -69,7 +69,7 @@ A minimum of five observations is required for fitting.
 \examples{
 # Example using synthetic data
 set.seed(123)
-time <- seq(0, 60, by = 5)
+time <- seq(5, 60, by = 5)
 
 # Simulated infiltration curve
 rate <- 10 * (1 + 50 / (time + 10))
