@@ -185,7 +185,7 @@ fit_greenampt <- function(data, time, rate, na.rm = TRUE) {
   list(
     model = "Green-Ampt",
 
-    params = data.frame(
+    parameters = data.frame(
       Ks     = Ks_fit,
       PsiDT  = PsiDT_fit
     ),
@@ -200,7 +200,7 @@ fit_greenampt <- function(data, time, rate, na.rm = TRUE) {
       residual_cum   = resid
     ),
 
-    stats = data.frame(
+    performance = data.frame(
       RMSE  = rmse,
       MAE   = mae,
       NRMSE = nrmse,
