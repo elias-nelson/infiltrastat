@@ -112,45 +112,47 @@ fit_greenampt <- function(data, time, rate, na.rm = TRUE) {
   infil <- infil[ord]
 
   # ---------------------------
+  # Convert time to hours (assuming input is minutes)
+  # ---------------------------
+  time_hr <- time / 60
+
+  # ---------------------------
   # Compute incremental dt and cumulative infiltration
   # ---------------------------
-  dt <- diff(c(0, time))
-  cumul_obs <- cumsum(infil * dt)
+  dt_hr <- diff(c(0, time_hr))
+  cumul_obs <- cumsum(infil * dt_hr)
 
   # ---------------------------
   # Model definition
   # Implicit F(t) solved by root-finding
   # ---------------------------
-  GA_F <- function(t, K, Ns) {
-    # Solve: F - K*t - Ns*log(1 + F/Ns) = 0
-    f_root <- function(F) F - K * t - Ns * log(1 + F/Ns)
-    stats::uniroot(f_root, interval = c(0, 1e6), tol = 1e-8)$root
+  GA_F <- function(t, Ks, PsiDT) {
+    f_root <- function(F) F - Ks * t - PsiDT * log(1 + F / PsiDT)
+    upper_bound <- max(cumul_obs, na.rm = TRUE) * 10
+    uniroot(f_root, interval = c(0, upper_bound), tol = 1e-8)$root
   }
 
-  GA_rate <- function(t, K, Ns) {
-    F_t <- sapply(t, GA_F, K = K, Ns = Ns)
-    K * (1 + Ns / F_t)
+  GA_rate <- function(t, Ks, PsiDT) {
+    F_t <- vapply(t, GA_F, FUN.VALUE = numeric(1), Ks = Ks, PsiDT = PsiDT)
+    Ks * (1 + PsiDT / F_t)
   }
 
   # ---------------------------
   # Starting values
   # ---------------------------
-  # K estimate: long-term rate ~ last few entries
-  K_start <- mean(tail(infil, max(3, floor(length(infil)*0.1))))
+  Ks_start    <- mean(tail(infil, max(3, floor(length(infil) * 0.1))))
+  PsiDT_start <- mean(cumul_obs) * 0.5
 
-  # Ns estimate: use early-time behavior
-  # initial guess: pick something relative to mean cumulative
-  Ns_start <- mean(cumul_obs) * 0.5
-  K_start <- max(K_start, 1e-6)
-  Ns_start <- max(Ns_start, 1e-6)
+  Ks_start    <- max(Ks_start, 1e-6)
+  PsiDT_start <- max(PsiDT_start, 1e-6)
 
   # ---------------------------
-  # Nonlinear fit via nlsLM
+  # Nonlinear fit via nlsLM (fit cumulative infiltration)
   # ---------------------------
   fit <- minpack.lm::nlsLM(
-    infil ~ GA_rate(time, K, Ns),
-    start = list(K = K_start, Ns = Ns_start),
-    lower = c(K = 0,   Ns = 0),
+    cumul_obs ~ vapply(time_hr, GA_F, FUN.VALUE = numeric(1), Ks = Ks, PsiDT = PsiDT),
+    start = list(Ks = Ks_start, PsiDT = PsiDT_start),
+    lower = c(Ks = 0, PsiDT = 0),
     control = minpack.lm::nls.lm.control(maxiter = 500)
   )
 
@@ -158,18 +160,25 @@ fit_greenampt <- function(data, time, rate, na.rm = TRUE) {
   # Predictions and residuals
   # ---------------------------
   pred <- stats::predict(fit)
-  resid <- infil - pred
+  resid <- cumul_obs - pred
+
+  # ---------------------------
+  # Derive fitted rate curve from parameters
+  # ---------------------------
+  Ks_fit    <- coef(fit)[["Ks"]]
+  PsiDT_fit <- coef(fit)[["PsiDT"]]
+  fitted_rate <- GA_rate(time_hr, Ks_fit, PsiDT_fit)
 
   # ---------------------------
   # Goodness-of-fit metrics
   # ---------------------------
   rmse  <- sqrt(mean(resid^2))
   mae   <- mean(abs(resid))
-  nrmse <- rmse / (max(infil) - min(infil)) * 100
-  pbias <- 100 * sum(resid) / sum(infil)
+  nrmse <- rmse / (max(cumul_obs) - min(cumul_obs)) * 100
+  pbias <- 100 * sum(resid) / sum(cumul_obs)
 
-  r2  <- 1 - sum(resid^2) / sum((infil - mean(infil))^2)
-  nse <- 1 - sum(resid^2) / sum((infil - mean(infil))^2)
+  r2  <- 1 - sum(resid^2) / sum((cumul_obs - mean(cumul_obs))^2)
+  nse <- 1 - sum(resid^2) / sum((cumul_obs - mean(cumul_obs))^2)
   aic <- stats::AIC(fit)
 
   # ---------------------------
@@ -179,16 +188,18 @@ fit_greenampt <- function(data, time, rate, na.rm = TRUE) {
     model = "Green-Ampt",
 
     params = data.frame(
-      K  = coef(fit)[["K"]],
-      Ns = coef(fit)[["Ns"]]
+      Ks     = Ks_fit,
+      PsiDT  = PsiDT_fit
     ),
 
     fitted = data.frame(
-      time      = time,
-      observed  = infil,
-      predicted = pred,
-      residual  = resid,
-      cumul_obs = cumul_obs
+      time_min       = time,
+      time_hr        = time_hr,
+      observed_rate  = infil,
+      predicted_rate = fitted_rate,
+      cumul_obs      = cumul_obs,
+      predicted_cum  = pred,
+      residual_cum   = resid
     ),
 
     stats = data.frame(
