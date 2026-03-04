@@ -10,61 +10,60 @@ fit_greenampt(data, time, rate, na.rm = TRUE)
 \item{data}{A data frame containing infiltration observations.}
 
 \item{time}{Unquoted column name representing cumulative time
-(must be numeric and >= 0).}
+(numeric, non-negative; typically minutes).}
 
-\item{rate}{Unquoted column name representing observed infiltration rate.}
+\item{rate}{Unquoted column name representing observed infiltration rate
+(mm/hr or cm/hr).}
 
 \item{na.rm}{Logical. If \code{TRUE} (default), incomplete observations
 are removed before fitting.}
 }
 \value{
-A list with class \code{"greenampt_model"} containing:
+A list of class \code{"greenampt_model"} with components:
 \itemize{
 \item \code{model} — Model name.
 \item \code{params} — Estimated parameters (\eqn{K}, \eqn{N_s}).
-\item \code{fitted} — Data frame with observed, predicted,
-residual, and cumulative observed infiltration.
+\item \code{fitted} — Data frame with:
+\itemize{
+\item \code{time_min}, \code{time_hr} — elapsed time,
+\item \code{observed_rate} — measured infiltration rate,
+\item \code{fitted_rate} — rate curve implied by fitted parameters,
+\item \code{cumul_obs} — observed cumulative infiltration,
+\item \code{predicted_cum} — fitted cumulative infiltration,
+\item \code{residual_cum} — residuals (observed – fitted cumulative).
+}
 \item \code{stats} — Goodness-of-fit statistics (RMSE, MAE, NRMSE,
 PBIAS, R², NSE, AIC).
 \item \code{nls_obj} — The fitted \code{nlsLM} model object.
 }
 }
 \description{
-Fits the physically based Green–Ampt infiltration rate model to observed
+Fits the physically based Green–Ampt infiltration model to observed
 infiltration data using nonlinear least squares with the
 Levenberg–Marquardt algorithm.
 }
 \details{
 The Green–Ampt cumulative infiltration equation is defined implicitly as:
 
-\deqn{F - K t - N_s \log\left(1 + \frac{F}{N_s}\right) = 0}
+\deqn{F(t) - K t - N_s \log\left(1 + \frac{F(t)}{N_s}\right) = 0}
 
 where:
 \itemize{
-\item \eqn{F} is cumulative infiltration,
-\item \eqn{K} is the hydraulic conductivity parameter,
-\item \eqn{N_s} is the effective capillary suction term,
+\item \eqn{F(t)} is cumulative infiltration,
+\item \eqn{K} is the saturated hydraulic conductivity,
+\item \eqn{N_s} is the effective suction–moisture deficit term,
 \item \eqn{t} is time.
 }
 
-The instantaneous infiltration rate is computed as:
+The instantaneous infiltration rate is derived from the fitted parameters as:
 
 \deqn{f(t) = K \left(1 + \frac{N_s}{F(t)}\right)}
 
-where \eqn{F(t)} is obtained numerically via root-finding.
-
-The Green–Ampt model is physically based and requires solving an
-implicit nonlinear equation for cumulative infiltration at each time step.
-This implementation computes \eqn{F(t)} numerically using
-\code{uniroot()} within each iteration of the nonlinear regression.
-
-Starting values are estimated internally:
-\itemize{
-\item \eqn{K} is approximated from the late-time observed infiltration rate.
-\item \eqn{N_s} is initialized relative to mean cumulative infiltration.
-}
-
-A minimum of five observations is required for fitting.
+The model solves the implicit Green–Ampt equation for cumulative infiltration
+at each time step using \code{uniroot()}. The fitted rate curve is then
+derived from the estimated parameters. Starting values are estimated
+internally: \eqn{K} from late-time observed rates, and \eqn{N_s} relative
+to mean cumulative infiltration. At least five observations are required.
 }
 \examples{
 # Example using synthetic data
