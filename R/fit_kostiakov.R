@@ -87,7 +87,6 @@
 #'   plot(time, cumul_fit, type = "l", col = "red", lwd = 2,
 #'        xlab = "Time (minutes)", ylab = "Cumulative infiltration (mm)")
 #' })
-# Kostiakov model with smooth prediction grid
 fit_kostiakov <- function(data, time, rate, na.rm = TRUE) {
 
   # ---------------------------
