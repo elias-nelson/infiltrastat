@@ -1,20 +1,20 @@
-#' Fit the Kostiakov–Lewis Infiltration Model
+#' Fit the Kostiakov-Lewis Infiltration Model
 #'
-#' Fits the empirical Kostiakov–Lewis infiltration model to observed
+#' Fits the empirical Kostiakov-Lewis infiltration model to observed
 #' infiltration rate data using nonlinear least squares with the
-#' Levenberg–Marquardt algorithm.
+#' Levenberg-Marquardt algorithm.
 #'
-#' The Kostiakov–Lewis cumulative infiltration function is:
+#' The Kostiakov-Lewis cumulative infiltration function is:
 #'
 #' \deqn{F(t) = k \cdot t^a + f_c \cdot t}
 #'
 #' where:
 #' \itemize{
-#'   \item \eqn{F(t)} — cumulative infiltration,
-#'   \item \eqn{k} — empirical scaling coefficient,
-#'   \item \eqn{a} — empirical exponent (typically 0 < a < 1),
-#'   \item \eqn{f_c} — steady infiltration rate,
-#'   \item \eqn{t} — time.
+#'   \item \eqn{F(t)} - cumulative infiltration,
+#'   \item \eqn{k} - empirical scaling coefficient,
+#'   \item \eqn{a} - empirical exponent (typically 0 < a < 1),
+#'   \item \eqn{f_c} - steady infiltration rate,
+#'   \item \eqn{t} - time.
 #' }
 #'
 #' The instantaneous infiltration rate is derived as:
@@ -31,62 +31,44 @@
 #'
 #' @returns A list of class \code{"kostiakov_lewis_model"} with components:
 #' \itemize{
-#'   \item \code{model} — Model name.
-#'   \item \code{params} — Estimated parameters (\eqn{k}, \eqn{a}, \eqn{f_c}).
-#'   \item \code{fitted} — Data frame with:
+#'   \item \code{model} - Model name.
+#'   \item \code{params} - Estimated parameters (\eqn{k}, \eqn{a}, \eqn{f_c}).
+#'   \item \code{fitted} - Data frame with:
 #'     \itemize{
-#'       \item \code{time} — elapsed time,
-#'       \item \code{observed} — measured infiltration rate,
-#'       \item \code{predicted} — fitted infiltration rate,
-#'       \item \code{residual} — residuals (observed – fitted rate),
-#'       \item \code{cumul_fit} — fitted cumulative infiltration.
+#'       \item \code{time} - elapsed time,
+#'       \item \code{observed} - measured infiltration rate,
+#'       \item \code{predicted} - fitted infiltration rate,
+#'       \item \code{residual} - residuals (observed – fitted rate),
+#'       \item \code{cumul_fit} - fitted cumulative infiltration.
 #'     }
-#'   \item \code{stats} — Goodness-of-fit statistics (RMSE, MAE, NRMSE,
+#'   \item \code{stats} - Goodness-of-fit statistics (RMSE, MAE, NRMSE,
 #'   PBIAS, R², NSE, AIC).
-#'   \item \code{nls_obj} — The fitted \code{nlsLM} model object.
+#'   \item \code{nls_obj} - The fitted \code{nlsLM} model object.
 #' }
 #'
 #' @details
-#' The Kostiakov–Lewis model extends the original Kostiakov formulation by
+#' The Kostiakov-Lewis model extends the original Kostiakov formulation by
 #' adding a steady infiltration term (\eqn{f_c}), allowing the rate to
 #' approach a constant value at long times. Starting values are estimated
 #' internally: \eqn{f_c} from late-time observed rates, and \eqn{k}, \eqn{a}
-#' via log–log regression. At least five observations are required.
-#'
-#' @references
-#' Lewis, M. (1942). The Kostiakov equation modified. *Transactions of the
-#' American Geophysical Union*, 23, 655–658.
+#' via log-log regression. At least five observations are required.
 #'
 #' @export
-#' @importFrom stats lm predict
+#' @importFrom stats cor sd
 #'
 #' @examples
-#' # Example dataset
-#' infilt_data <- data.frame(
-#'   Time = c(5, 10, 15, 20, 30, 45, 60),
-#'   Rate = c(30, 20, 15, 12, 10, 8, 7)  # mm/hr
-#' )
+#' # Example using synthetic data
+#' set.seed(123)
+#' time <- seq(5, 60, by = 5)
+#' k <- 20; a <- 0.7; fc <- 5
+#' rate <- k * a * time^(a - 1) + fc
+#' rate <- rate + rnorm(length(rate), 0, 0.5)  # add noise
 #'
-#' # Fit the Kostiakov–Lewis model
-#' kl_fit <- fit_kostiakov_lewis(data = infilt_data, time = Time, rate = Rate)
+#' data <- data.frame(Time = time, Rate = rate)
 #'
-#' # Inspect estimated parameters
-#' kl_fit$params
-#'
-#' # Plot observed vs fitted infiltration rate
-#' with(kl_fit$fitted, {
-#'   plot(time, observed, pch = 16, col = "blue",
-#'        xlab = "Time (minutes)", ylab = "Infiltration rate (mm/hr)")
-#'   lines(time, predicted, col = "red", lwd = 2)
-#'   legend("topright", legend = c("Observed", "Fitted"),
-#'          col = c("blue", "red"), pch = c(16, NA), lty = c(NA, 1))
-#' })
-#'
-#' # Plot fitted cumulative infiltration curve
-#' with(kl_fit$fitted, {
-#'   plot(time, cumul_fit, type = "l", col = "red", lwd = 2,
-#'        xlab = "Time (minutes)", ylab = "Cumulative infiltration (mm)")
-#' })
+#' model <- fit_kostiakov_lewis(data, time = Time, rate = Rate)
+#' model$params
+#' model$stats
 fit_kostiakov_lewis <- function(data = NULL, time, rate, na.rm = TRUE) {
 
   # ---------------------------
@@ -125,7 +107,7 @@ fit_kostiakov_lewis <- function(data = NULL, time, rate, na.rm = TRUE) {
   infil <- infil[ord]
 
   # ---------------------------
-  # Kostiakov–Lewis equation
+  # Kostiakov-Lewis equation
   # f(t) = k * a * t^(a - 1) + fc
   # ---------------------------
   kl_fun <- function(t, k, a, fc) {
@@ -135,16 +117,20 @@ fit_kostiakov_lewis <- function(data = NULL, time, rate, na.rm = TRUE) {
   # ---------------------------
   # Smart starting values
   # ---------------------------
+  # steady infiltration from late-time values
   fc_start <- mean(tail(infil, max(3, floor(length(infil) * 0.1))))
-  log_t <- log(time)
-  log_f <- log(pmax(infil - fc_start, 1e-6))
-  lm_fit <- stats::lm(log_f ~ log_t)
-  a_start <- coef(lm_fit)[2] + 1
-  k_start <- exp(coef(lm_fit)[1]) / a_start
+  fc_start <- max(min(fc_start, min(infil)), 1e-6)
 
+  # log-linear regression for k and a
+  log_t <- log(time)
+  log_f <- log(pmax(infil - fc_start, 1e-3))  # avoid negatives
+  lm_fit <- stats::lm(log_f ~ log_t)
+
+  a_start <- coef(lm_fit)[2] + 1
+  a_start <- max(min(a_start, 0.9), 0.1)      # keep in (0.1, 0.9)
+
+  k_start <- exp(coef(lm_fit)[1]) / a_start
   k_start <- max(k_start, 1e-6)
-  a_start <- max(min(a_start, 1), 1e-6)
-  fc_start <- max(fc_start, 1e-6)
 
   # ---------------------------
   # Nonlinear fit
@@ -153,7 +139,8 @@ fit_kostiakov_lewis <- function(data = NULL, time, rate, na.rm = TRUE) {
     infil ~ kl_fun(time, k, a, fc),
     start = list(k = k_start, a = a_start, fc = fc_start),
     lower = c(k = 0, a = 0, fc = 0),
-    control = minpack.lm::nls.lm.control(maxiter = 200)
+    upper = c(k = Inf, a = 2, fc = Inf),   # allow a up to 2
+    control = minpack.lm::nls.lm.control(maxiter = 500)
   )
 
   # ---------------------------
@@ -209,7 +196,7 @@ fit_kostiakov_lewis <- function(data = NULL, time, rate, na.rm = TRUE) {
   # Structured tidy output
   # ---------------------------
   list(
-    model = "Kostiakov–Lewis",
+    model = "Kostiakov-Lewis",
     params = data.frame(k = k_fit, a = a_fit, fc = fc_fit),
     fitted = data.frame(
       time      = time,
@@ -217,7 +204,7 @@ fit_kostiakov_lewis <- function(data = NULL, time, rate, na.rm = TRUE) {
       predicted = pred,
       residual  = resid
     ),
-    smooth = smooth_pred,   # fine-grid predictions
+    smooth = smooth_pred,
     stats = data.frame(
       RMSE  = rmse,
       MAE   = mae,

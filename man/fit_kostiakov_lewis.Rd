@@ -2,7 +2,7 @@
 % Please edit documentation in R/fit_kostiakov_lewis.R
 \name{fit_kostiakov_lewis}
 \alias{fit_kostiakov_lewis}
-\title{Fit the Kostiakov–Lewis Infiltration Model}
+\title{Fit the Kostiakov-Lewis Infiltration Model}
 \usage{
 fit_kostiakov_lewis(data = NULL, time, rate, na.rm = TRUE)
 }
@@ -21,79 +21,61 @@ are removed before fitting.}
 \value{
 A list of class \code{"kostiakov_lewis_model"} with components:
 \itemize{
-\item \code{model} — Model name.
-\item \code{params} — Estimated parameters (\eqn{k}, \eqn{a}, \eqn{f_c}).
-\item \code{fitted} — Data frame with:
+\item \code{model} - Model name.
+\item \code{params} - Estimated parameters (\eqn{k}, \eqn{a}, \eqn{f_c}).
+\item \code{fitted} - Data frame with:
 \itemize{
-\item \code{time} — elapsed time,
-\item \code{observed} — measured infiltration rate,
-\item \code{predicted} — fitted infiltration rate,
-\item \code{residual} — residuals (observed – fitted rate),
-\item \code{cumul_fit} — fitted cumulative infiltration.
+\item \code{time} - elapsed time,
+\item \code{observed} - measured infiltration rate,
+\item \code{predicted} - fitted infiltration rate,
+\item \code{residual} - residuals (observed – fitted rate),
+\item \code{cumul_fit} - fitted cumulative infiltration.
 }
-\item \code{stats} — Goodness-of-fit statistics (RMSE, MAE, NRMSE,
+\item \code{stats} - Goodness-of-fit statistics (RMSE, MAE, NRMSE,
 PBIAS, R², NSE, AIC).
-\item \code{nls_obj} — The fitted \code{nlsLM} model object.
+\item \code{nls_obj} - The fitted \code{nlsLM} model object.
 }
 }
 \description{
-Fits the empirical Kostiakov–Lewis infiltration model to observed
+Fits the empirical Kostiakov-Lewis infiltration model to observed
 infiltration rate data using nonlinear least squares with the
-Levenberg–Marquardt algorithm.
+Levenberg-Marquardt algorithm.
 }
 \details{
-The Kostiakov–Lewis cumulative infiltration function is:
+The Kostiakov-Lewis cumulative infiltration function is:
 
 \deqn{F(t) = k \cdot t^a + f_c \cdot t}
 
 where:
 \itemize{
-\item \eqn{F(t)} — cumulative infiltration,
-\item \eqn{k} — empirical scaling coefficient,
-\item \eqn{a} — empirical exponent (typically 0 < a < 1),
-\item \eqn{f_c} — steady infiltration rate,
-\item \eqn{t} — time.
+\item \eqn{F(t)} - cumulative infiltration,
+\item \eqn{k} - empirical scaling coefficient,
+\item \eqn{a} - empirical exponent (typically 0 < a < 1),
+\item \eqn{f_c} - steady infiltration rate,
+\item \eqn{t} - time.
 }
 
 The instantaneous infiltration rate is derived as:
 
 \deqn{f(t) = k \cdot a \cdot t^{a-1} + f_c}
 
-The Kostiakov–Lewis model extends the original Kostiakov formulation by
+The Kostiakov-Lewis model extends the original Kostiakov formulation by
 adding a steady infiltration term (\eqn{f_c}), allowing the rate to
 approach a constant value at long times. Starting values are estimated
 internally: \eqn{f_c} from late-time observed rates, and \eqn{k}, \eqn{a}
-via log–log regression. At least five observations are required.
+via log-log regression. At least five observations are required.
 }
 \examples{
-# Example dataset
-infilt_data <- data.frame(
-  Time = c(5, 10, 15, 20, 30, 45, 60),
-  Rate = c(30, 20, 15, 12, 10, 8, 7)  # mm/hr
-)
+# Example using synthetic data
+set.seed(123)
+time <- seq(5, 60, by = 5)
+k <- 20; a <- 0.7; fc <- 5
+rate <- k * a * time^(a - 1) + fc
+rate <- rate + rnorm(length(rate), 0, 0.5)  # add noise
 
-# Fit the Kostiakov–Lewis model
-kl_fit <- fit_kostiakov_lewis(data = infilt_data, time = Time, rate = Rate)
+data <- data.frame(Time = time, Rate = rate)
 
-# Inspect estimated parameters
-kl_fit$params
-
-# Plot observed vs fitted infiltration rate
-with(kl_fit$fitted, {
-  plot(time, observed, pch = 16, col = "blue",
-       xlab = "Time (minutes)", ylab = "Infiltration rate (mm/hr)")
-  lines(time, predicted, col = "red", lwd = 2)
-  legend("topright", legend = c("Observed", "Fitted"),
-         col = c("blue", "red"), pch = c(16, NA), lty = c(NA, 1))
-})
-
-# Plot fitted cumulative infiltration curve
-with(kl_fit$fitted, {
-  plot(time, cumul_fit, type = "l", col = "red", lwd = 2,
-       xlab = "Time (minutes)", ylab = "Cumulative infiltration (mm)")
-})
-}
-\references{
-Lewis, M. (1942). The Kostiakov equation modified. \emph{Transactions of the
-American Geophysical Union}, 23, 655–658.
+model <- fit_kostiakov_lewis(data, time = Time, rate = Rate)
+model$params
+model$stats
 }
