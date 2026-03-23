@@ -83,11 +83,6 @@
 #'          col = c("blue", "red"), pch = c(16, NA), lty = c(NA, 1))
 #' })
 #'
-#' # Plot fitted cumulative infiltration curve
-#' with(sw_fit$fitted, {
-#'   plot(time, cumul_fit, type = "l", col = "red", lwd = 2,
-#'        xlab = "Time (minutes)", ylab = "Cumulative infiltration (mm)")
-#' })
 fit_swartzendruber <- function(data = NULL, time, rate, na.rm = TRUE) {
 
   # ---------------------------
